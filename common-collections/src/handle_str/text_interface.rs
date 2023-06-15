@@ -20,7 +20,9 @@ fn extract_valid_input(value: &str) -> Option<String> {
 }
 
 fn extract_value(value: &str) -> &str {
+    let re = Regex::new(r"");
     let part_with_data = &value[3..];
+    let to_location = Regex::new(r"to").unwrap().find(part_with_data).unwrap();
     part_with_data
 }
 
