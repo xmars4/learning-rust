@@ -12,6 +12,24 @@ fn transpose(matrix: [[i32; 3]; 3]) -> [[i32; 3]; 3] {
     columns
 }
 
+#[test]
+fn test_transpose() {
+    let matrix = [
+        [1, 2, 3], //
+        [4, 5, 6],
+        [7, 8, 9],
+    ];
+    let transposed = transpose(matrix);
+    assert_eq!(
+        transposed,
+        [
+            [1, 4, 7,], //
+            [2, 5, 8,],
+            [3, 6, 9,],
+        ]
+    );
+}
+
 fn main() {
     let matrix = [
         [101, 102, 103], // <-- the comment makes rustfmt add a newline
