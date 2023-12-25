@@ -2,15 +2,18 @@
 // and taking the square root. Use the `sqrt()` method to calculate the square
 // root, like `v.sqrt()`.
 
-fn magnitude(v: &[f64; 3]) -> f64 {
-    v[0].sqrt() + v[1].sqrt() + v[2].sqrt()
+fn magnitude(v: &[f64]) -> f64 {
+    v.iter().map(|x| x * x).sum::<f64>().sqrt()
 }
 
 // Normalize a vector by calculating its magnitude and dividing all of its
 // coordinates by that magnitude.
 
-fn normalize(...) {
-    todo!()
+fn normalize(v: &mut [f64]) {
+    let vm = magnitude(v);
+    for item in v.iter_mut() {
+        *item /= vm;
+    }
 }
 
 // Use the following `main` to test your work.
