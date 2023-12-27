@@ -23,16 +23,34 @@ enum Expression {
 
 fn eval(e: Expression) -> Result<i64, String> {
     match e {
-        Expression::Op { op, left, right } => match op {
-            Operation::Add => Ok(eval(*left).unwrap() + eval(*right).unwrap()),
-            Operation::Sub => Ok(eval(*left).unwrap() - eval(*right).unwrap()),
-            Operation::Mul => Ok(eval(*left).unwrap() * eval(*right).unwrap()),
-            Operation::Div => {
-                if let eval(*right) == Ok(0){
-                    //fixme
+        Expression::Op { op, left, right } => {
+            let left_value = eval(*left)?;
+            let right_value = eval(*right)?;
+            match op {
+                Operation::Add => {
+                    if left_value.checked_add(right_value).is_none() {
+                        return Err(String::from("integer overflow"));
+                    } else {
+                        return Ok(left_value + right_value);
+                    }
+                }
+                Operation::Sub => Ok(left_value - right_value),
+                Operation::Mul => {
+                    if left_value.checked_mul(right_value).is_none() {
+                        return Err(String::from("integer overflow"));
+                    } else {
+                        return Ok(left_value * right_value);
+                    }
+                }
+                Operation::Div => {
+                    if right_value == 0 {
+                        return Err(String::from("division by zero"));
+                    } else {
+                        return Ok(left_value / right_value);
+                    }
                 }
             }
-        },
+        }
         Expression::Value(x) => Ok(x),
     }
 }
@@ -90,4 +108,16 @@ fn test_error() {
         }),
         Err(String::from("division by zero"))
     );
+}
+
+#[test]
+fn test_overflow() {
+    assert_eq!(
+        eval(Expression::Op {
+            op: Operation::Mul,
+            left: Box::new(Expression::Value(9223372036854775807)),
+            right: Box::new(Expression::Value(2)),
+        }),
+        Ok(2) // Err(String::from("integer overflow"))
+    )
 }
