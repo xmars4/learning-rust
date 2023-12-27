@@ -118,6 +118,6 @@ fn test_overflow() {
             left: Box::new(Expression::Value(9223372036854775807)),
             right: Box::new(Expression::Value(2)),
         }),
-        Ok(2) // Err(String::from("integer overflow"))
+        Err(String::from("integer overflow"))
     )
 }
