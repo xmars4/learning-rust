@@ -1,6 +1,8 @@
 // TODO: remove this when you're done with your implementation.
 // #![allow(unused_imports, unused_variables, dead_code)]
 
+use std::cmp;
+
 pub trait Widget {
     /// Natural width of `self`.
     fn width(&self) -> usize;
@@ -94,8 +96,14 @@ impl Widget for Window {
     }
 
     fn draw_into(&self, buffer: &mut dyn std::fmt::Write) {
-        let inner_width = self.inner_width();
+        let inner_width = self.inner_width() + 2;
+        let inner_line_width = inner_width - 2;
         let mut inner_buffer = String::new();
+        for widget in &self.widgets {
+            widget.draw_into(&mut inner_buffer);
+        }
+
+        println!("inner_width: {inner_width}");
         buffer
             .write_str(format!("+{:=^inner_width$}+\n", "").as_str())
             .unwrap_or_default();
@@ -105,11 +113,9 @@ impl Widget for Window {
         buffer
             .write_str(format!("+{:=^inner_width$}+\n", "").as_str())
             .unwrap_or_default();
-        for widget in &self.widgets {
-            widget.draw_into(&mut inner_buffer);
-        }
+
         for line in inner_buffer.lines() {
-            writeln!(buffer, "|{: <inner_width$}|", line).unwrap();
+            writeln!(buffer, "| {: <inner_line_width$} |", line).unwrap();
         }
         buffer
             .write_str(format!("+{:-^inner_width$}+\n", "").as_str())
