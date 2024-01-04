@@ -1,5 +1,5 @@
 // TODO: remove this when you're done with your implementation.
-#![allow(unused_imports, unused_variables, dead_code)]
+// #![allow(unused_imports, unused_variables, dead_code)]
 
 pub trait Widget {
     /// Natural width of `self`.
@@ -95,10 +95,16 @@ impl Widget for Window {
     }
 
     fn draw_into(&self, buffer: &mut dyn std::fmt::Write) {
-        buffer.write_str(format!("{:=^8}\n", "").as_str());
-        buffer.write_str(&self.title.to_owned());
-        buffer.write_str(format!("\n{:=^8}\n", "").as_str());
-        buffer.write_str("\n");
+        let inner_width = self.inner_width();
+        buffer
+            .write_str(format!("+{:=^inner_width$}+\n", "").as_str())
+            .unwrap_or_default();
+        buffer
+            .write_str(format!("|{: ^inner_width$}|\n", &self.title.to_owned()).as_str())
+            .unwrap_or_default();
+        buffer
+            .write_str(format!("+{:=^inner_width$}+\n", "").as_str())
+            .unwrap_or_default();
         for widget in &self.widgets {
             widget.draw_into(buffer);
         }
