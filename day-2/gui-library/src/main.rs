@@ -98,16 +98,9 @@ impl Widget for Window {
             widget.draw_into(&mut inner_buffer);
         }
 
-        println!("inner_width: {inner_width}");
-        buffer
-            .write_str(format!("+{:=^inner_width$}+\n", "").as_str())
-            .unwrap_or_default();
-        buffer
-            .write_str(format!("|{: ^inner_width$}|\n", &self.title.to_owned()).as_str())
-            .unwrap_or_default();
-        buffer
-            .write_str(format!("+{:=^inner_width$}+\n", "").as_str())
-            .unwrap_or_default();
+        writeln!(buffer, "+{:=^inner_width$}+", "").unwrap_or_default();
+        writeln!(buffer, "|{: ^inner_width$}|", &self.title).unwrap();
+        writeln!(buffer, "+{:=^inner_width$}+", "").unwrap_or_default();
 
         for line in inner_buffer.lines() {
             writeln!(buffer, "| {: <inner_line_width$} |", line).unwrap();
