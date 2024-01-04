@@ -71,7 +71,8 @@ impl Widget for Label {
     }
 
     fn draw_into(&self, buffer: &mut dyn std::fmt::Write) {
-        buffer.write_str(&self.label.to_owned());
+        buffer.write_str(&self.label.to_owned()).unwrap_or_default();
+        buffer.write_str("\n\n");
     }
 }
 
@@ -84,6 +85,7 @@ impl Widget for Button {
         buffer.write_str("| ");
         buffer.write_str(&self.label.label.to_owned());
         buffer.write_str(" |");
+        buffer.write_str("\n");
     }
 }
 
@@ -93,18 +95,15 @@ impl Widget for Window {
     }
 
     fn draw_into(&self, buffer: &mut dyn std::fmt::Write) {
+        buffer.write_str(format!("{:=^8}\n", "").as_str());
         buffer.write_str(&self.title.to_owned());
+        buffer.write_str(format!("\n{:=^8}\n", "").as_str());
+        buffer.write_str("\n");
         for widget in &self.widgets {
             widget.draw_into(buffer);
         }
     }
 }
-
-// TODO: Implement `Widget` for `Label`.
-
-// TODO: Implement `Widget` for `Button`.
-
-// TODO: Implement `Widget` for `Window`.
 
 fn main() {
     let mut window = Window::new("Rust GUI Demo 1.23");
