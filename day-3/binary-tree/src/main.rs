@@ -1,8 +1,8 @@
 use std::cmp::Ordering::{Equal, Greater, Less};
-use std::ops::Sub;
+use std::fmt::Display;
 /// A node in the binary tree.
 #[derive(Debug)]
-struct Node<T: Ord> {
+struct Node<T: Ord + Display> {
     value: T,
     left: Subtree<T>,
     right: Subtree<T>,
@@ -10,13 +10,62 @@ struct Node<T: Ord> {
 
 /// A possibly-empty subtree.
 #[derive(Debug)]
-struct Subtree<T: Ord>(Option<Box<Node<T>>>);
+struct Subtree<T: Ord + Display>(Option<Box<Node<T>>>);
 
-impl<T: Ord> Subtree<T> {
+impl<T: Ord + Display> Subtree<T> {
     fn len(&self) -> usize {
         match &self.0 {
             Some(node) => 1 + node.left.len() + node.right.len(),
             None => 0,
+        }
+    }
+
+    fn has(&self, value: &T) -> bool {
+        match &self.0 {
+            Some(node) => {
+                let compare_result = value.cmp(&node.value);
+                match compare_result {
+                    Less => node.left.has(value),
+                    Greater => node.right.has(value),
+                    Equal => true,
+                }
+            }
+            _ => false,
+        }
+    }
+
+    fn insert(&mut self, value: T) {
+        match self.0.as_mut() {
+            Some(node) => match value.cmp(&node.value) {
+                Less => match node.left {
+                    Subtree(None) => {
+                        node.left = Subtree(Some(Box::new(Node {
+                            value,
+                            left: Subtree(None),
+                            right: Subtree(None),
+                        })))
+                    }
+                    _ => node.left.insert(value),
+                },
+                Greater => match node.right {
+                    Subtree(None) => {
+                        node.right = Subtree(Some(Box::new(Node {
+                            value,
+                            left: Subtree(None),
+                            right: Subtree(None),
+                        })))
+                    }
+                    _ => node.right.insert(value),
+                },
+                Equal => (),
+            },
+            None => {
+                self.0 = Some(Box::new(Node {
+                    value,
+                    left: Subtree(None),
+                    right: Subtree(None),
+                }))
+            }
         }
     }
 }
@@ -25,11 +74,11 @@ impl<T: Ord> Subtree<T> {
 ///
 /// If the same value is added multiple times, it is only stored once.
 #[derive(Debug)]
-pub struct BinaryTree<T: Ord> {
+pub struct BinaryTree<T: Ord + Display> {
     root: Subtree<T>,
 }
 
-impl<T: Ord> BinaryTree<T> {
+impl<T: Ord + Display> BinaryTree<T> {
     fn new() -> Self {
         BinaryTree {
             root: Subtree(None),
@@ -37,36 +86,7 @@ impl<T: Ord> BinaryTree<T> {
     }
 
     fn insert(&mut self, value: T) {
-        let node_value = self.root.0.as_mut();
-        match node_value {
-            Some(node) => {
-                let compare_result = node.value.cmp(&value);
-                match compare_result {
-                    Less => {
-                        node.left = Subtree(Some(Box::new(Node {
-                            value,
-                            left: Subtree(None),
-                            right: Subtree(None),
-                        })))
-                    }
-                    Greater => {
-                        node.right = Subtree(Some(Box::new(Node {
-                            value,
-                            left: Subtree(None),
-                            right: Subtree(None),
-                        })))
-                    }
-                    _ => (),
-                }
-            }
-            None => {
-                self.root.0 = Some(Box::new(Node {
-                    value,
-                    left: Subtree(None),
-                    right: Subtree(None),
-                }))
-            }
-        }
+        self.root.insert(value);
     }
 
     fn len(&self) -> usize {
@@ -74,7 +94,7 @@ impl<T: Ord> BinaryTree<T> {
     }
 
     fn has(&self, value: &T) -> bool {
-        //
+        self.root.has(value)
     }
 }
 
